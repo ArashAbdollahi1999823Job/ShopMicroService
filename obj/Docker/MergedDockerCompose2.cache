@@ -1,0 +1,44 @@
+services:
+  catalog.api:
+    build:
+      context: E:\ProjectGit\MicroServiceAdvanceOne\MicroServiceAdvance
+      dockerfile: Services/Catalog/Catalog.Api/Dockerfile
+      labels:
+        com.microsoft.created-by: visual-studio
+        com.microsoft.visual-studio.project-name: Catalog.Api
+    container_name: catalog.api
+    depends_on:
+      catalogdb:
+        condition: service_started
+    entrypoint: tail -f /dev/null
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DatabaseSettings:ConnectionString: mongodb://catalogdb:27017
+    image: catalogapi
+    labels:
+      com.microsoft.visual-studio.project-name: Catalog.Api
+      com.microsoft.visualstudio.debuggee.arguments: ' --additionalProbingPath /root/.nuget/packages  "/app/Catalog.Api.dll"'
+      com.microsoft.visualstudio.debuggee.killprogram: /bin/sh -c "if PID=$$(pidof
+        dotnet); then kill $$PID; fi"
+      com.microsoft.visualstudio.debuggee.program: dotnet
+      com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    ports:
+    - published: 8000
+      target: 80
+    tty: true
+    volumes:
+    - C:\Users\Arash\vsdbg\vs2017u5:/remote_debugger:rw
+    - C:\Users\Arash\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro
+    - C:\Users\Arash\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
+  catalogdb:
+    container_name: catalogdb
+    image: mongo
+    ports:
+    - published: 27017
+      target: 27017
+    restart: always
+    volumes:
+    - mongo_data:/data/db:rw
+version: '3.4'
+volumes:
+  mongo_data: {}

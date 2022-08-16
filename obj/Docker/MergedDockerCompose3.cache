@@ -1,0 +1,50 @@
+services:
+  catalog.api:
+    build:
+      context: E:\ProjectGit\MicroServiceAdvanceOne\MicroServiceAdvance
+      dockerfile: Services/Catalog/Catalog.Api/Dockerfile
+      labels:
+        com.microsoft.created-by: visual-studio
+        com.microsoft.visual-studio.project-name: Catalog.Api
+      target: base
+    container_name: catalog.api
+    depends_on:
+      catalogdb:
+        condition: service_started
+    entrypoint: tail -f /dev/null
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS: "true"
+      DOTNET_USE_POLLING_FILE_WATCHER: '1'
+      DatabaseSettings:ConnectionString: mongodb://catalogdb:27017
+      NUGET_FALLBACK_PACKAGES: ''
+    image: catalogapi:dev
+    labels:
+      com.microsoft.visualstudio.debuggee.arguments: ' --additionalProbingPath /root/.nuget/packages  "/app/bin/Release/net6.0/Catalog.Api.dll"'
+      com.microsoft.visualstudio.debuggee.killprogram: /bin/sh -c "if PID=$$(pidof
+        dotnet); then kill $$PID; fi"
+      com.microsoft.visualstudio.debuggee.program: dotnet
+      com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    ports:
+    - published: 8000
+      target: 80
+    tty: true
+    volumes:
+    - E:\ProjectGit\MicroServiceAdvanceOne\MicroServiceAdvance\Services\Catalog\Catalog.Api:/app:rw
+    - C:\Users\Arash\vsdbg\vs2017u5:/remote_debugger:rw
+    - C:\Users\Arash\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro
+    - C:\Users\Arash\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
+    - C:\Users\Arash\.nuget\packages:/root/.nuget/packages:ro
+    - E:\ProjectGit\MicroServiceAdvanceOne\MicroServiceAdvance:/src:rw
+  catalogdb:
+    container_name: catalogdb
+    image: mongo
+    ports:
+    - published: 27017
+      target: 27017
+    restart: always
+    volumes:
+    - mongo_data:/data/db:rw
+version: '3.4'
+volumes:
+  mongo_data: {}
